@@ -9,40 +9,21 @@
     <div class="max-w-xl mx-auto bg-slate-800 p-8 rounded-2xl border border-slate-700 shadow-2xl text-center">
         <div class="text-5xl mb-4 animate-pulse">📡</div>
         <h1 class="text-2xl font-black">Relais de Réception Actif</h1>
-        <p class="text-sm text-slate-400 mt-2">Intercepte et télécharge automatiquement une copie de secours (.txt) de chaque élève.</p>
-        
+        <p class="text-sm text-slate-400 mt-2">Ce volet intercepte en tâche de fond les copies émises si vous partagez une session locale.</p>
         <div class="mt-6 bg-slate-950 p-4 rounded-xl border border-slate-800 font-mono text-left text-xs text-emerald-400 h-48 overflow-y-auto" id="relay-logs">
             [Système] En attente de signaux élèves...
         </div>
     </div>
-
     <script>
         const logsBox = document.getElementById('relay-logs');
         const channel = new BroadcastChannel('arldelattre_channel');
-
         channel.onmessage = (event) => {
             if (event.data && event.data.type === 'SUBMISSION') {
-                const payload = event.data.payload;
-                
-                const logLine = document.createElement('p');
-                logLine.innerText = `[${payload.time}] Reçu : ${payload.prenom} ${payload.nom.toUpperCase()} (${payload.classe}) -> ${payload.quizTitle} : ${payload.score}/8`;
-                logsBox.appendChild(logLine);
+                const p = event.data.payload;
+                const line = document.createElement('p');
+                line.innerText = `[${p.time}] Intercepté : ${p.prenom} ${p.nom.toUpperCase()} (${p.classe}) -> ${p.score}/8`;
+                logsBox.appendChild(line);
                 logsBox.scrollTop = logsBox.scrollHeight;
-
-                let textContent = `ARL DELATTRE - MR KESTELYN\nCOPIE DE SECURITE\n\n`;
-                textContent += `Bilan : ${payload.quizTitle}\n`;
-                textContent += `Élève : ${payload.prenom} ${payload.nom.toUpperCase()}\n`;
-                textContent += `Classe : ${payload.classe}\n`;
-                textContent += `Note : ${payload.score} / 8\n\n`;
-                payload.details.forEach(d => {
-                    textContent += `- ${d.label} : [${d.student}] (Attendu: ${d.correct}) -> ${d.ok ? 'CORRECT' : 'FAUX'}\n`;
-                });
-
-                const blob = new Blob([textContent], { type: "text/plain;charset=utf-8" });
-                const link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
-                link.download = `Secours_${payload.classe}_${payload.nom.toUpperCase()}_${payload.quizTitle.replace(/\s+/g, '')}.txt`;
-                link.click();
             }
         };
     </script>

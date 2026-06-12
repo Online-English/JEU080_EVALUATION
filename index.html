@@ -8,7 +8,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         .avoid-break { page-break-inside: avoid; break-inside: avoid; }
-        /* Style spécial Accessibilité / Dyslexie */
         .dys-mode p, .dys-mode label, .dys-mode span { 
             font-family: 'Comic Sans MS', cursive, sans-serif !important; 
             letter-spacing: 0.12em !important; 
@@ -70,6 +69,11 @@
                     <input type="text" id="student-class" class="w-full px-4 py-3 border border-slate-200 rounded-xl font-medium" placeholder="Ex: 3B, 4A...">
                 </div>
 
+                <div class="flex items-center gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <input type="checkbox" id="student-tierstemps" class="w-4 h-4 text-blue-600 cursor-pointer">
+                    <label for="student-tierstemps" class="text-xs font-bold text-slate-700 cursor-pointer select-none">⏱️ Bénéficier du dispositif Tiers-Temps (27 min)</label>
+                </div>
+
                 <button onclick="startAssessment()" class="w-full mt-2 bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 transition cursor-pointer shadow-lg shadow-blue-100">Démarrer le bilan</button>
                 <p id="login-error" class="text-red-500 text-xs text-center font-semibold hidden bg-red-50 py-2 rounded-lg mt-2">Données incorrectes ou manquantes.</p>
             </div>
@@ -102,7 +106,7 @@
             </div>
 
             <div class="p-6 bg-white border-t border-slate-200">
-                <button onclick="submitResult(true)" class="w-full bg-emerald-600 text-white font-bold py-4 rounded-xl hover:bg-emerald-700 transition cursor-pointer text-center text-lg shadow-md">
+                <button onclick="submitResult(true)" class="w-full bg-emerald-600 text-white font-bold py-4 rounded-xl hover:bg-emerald-700 transition cursor-pointer text-center text-lg">
                     Valider et envoyer mes réponses
                 </button>
             </div>
@@ -112,7 +116,11 @@
             <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
                 <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-4">✓</div>
                 <h2 class="text-3xl font-black text-slate-900 mb-2">Travail Transmis !</h2>
-                <p class="text-slate-500 mb-6 font-medium">Tes notes sont centralisées. Télécharge tes deux fichiers obligatoires ci-dessous.</p>
+                <p class="text-slate-500 mb-6 font-medium">Tes notes sont centralisées. Télécharge tes fichiers de validation ci-dessous.</p>
+
+                <div id="exam-mode-neutral-message" class="hidden bg-blue-50 border border-blue-200 p-6 rounded-xl text-blue-800 text-sm font-semibold text-left mb-6 avoid-break">
+                    🔒 <b>Mode Examen activé :</b> Votre copie a été enregistrée avec succès. Par mesure d'équité, vos résultats détaillés et votre note globale ne seront affichés qu'après la clôture complète de la session par Mr Kestelyn.
+                </div>
 
                 <div id="individual-pdf-copy" class="bg-slate-50 p-6 rounded-xl border border-slate-200 text-left mb-6 font-sans">
                     <div class="border-b border-slate-200 pb-4 mb-4 flex justify-between items-start">
@@ -126,7 +134,7 @@
                 </div>
 
                 <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                    <button onclick="downloadIndividualPDF()" class="bg-blue-600 text-white font-bold px-5 py-3 rounded-xl hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-md cursor-pointer">📄 Éléve : Mon PDF</button>
+                    <button id="student-pdf-btn" onclick="downloadIndividualPDF()" class="bg-blue-600 text-white font-bold px-5 py-3 rounded-xl hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-md cursor-pointer">📄 Mon PDF Corrigé</button>
                     <button onclick="downloadStudentJSON()" class="bg-purple-600 text-white font-bold px-5 py-3 rounded-xl hover:bg-purple-700 transition flex items-center justify-center gap-2 shadow-md cursor-pointer">📥 Fichier Prof (.json)</button>
                     <button onclick="resetToLogin()" class="bg-slate-100 text-slate-700 font-bold px-5 py-3 rounded-xl hover:bg-slate-200 transition cursor-pointer">Élève suivant</button>
                 </div>
@@ -143,11 +151,18 @@
 
             <div id="teacher-dashboard-content" class="hidden space-y-6">
                 <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div>
+                    <div class="space-y-1">
                         <h2 class="text-2xl font-black text-slate-900">Résultats de la classe</h2>
-                        <div class="flex items-center gap-2 mt-1">
-                            <span class="text-xs text-slate-400 font-bold">Filtre :</span>
-                            <select id="teacher-quiz-filter" onchange="renderTable()" class="text-xs font-bold border rounded px-2 py-1 bg-slate-50 text-slate-600"></select>
+                        <div class="flex flex-wrap items-center gap-4 text-xs font-bold text-slate-600">
+                            <label>Bilan : 
+                                <select id="teacher-quiz-filter" onchange="renderTable()" class="border rounded px-2 py-0.5 bg-slate-50"></select>
+                            </label>
+                            <label class="text-blue-600">Configuration : 
+                                <select id="teacher-mode-toggle" onchange="changeEvalMode(this.value)" class="border rounded px-2 py-0.5 bg-blue-50 font-black">
+                                    <option value="entrainement">Entraînement (Scores visibles)</option>
+                                    <option value="examen">Examen (Scores masqués aux élèves)</option>
+                                </select>
+                            </label>
                         </div>
                     </div>
                     
@@ -169,11 +184,11 @@
 
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
-                        <span class="text-xs font-bold text-slate-400 uppercase block tracking-wider">Effectif</span>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Effectif</span>
                         <span id="stat-count" class="text-3xl font-black text-slate-900 mt-1 block">0</span>
                     </div>
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
-                        <span class="text-xs font-bold text-slate-400 uppercase block tracking-wider">Moyenne Générale</span>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Moyenne Générale</span>
                         <span id="stat-average" class="text-3xl font-black text-slate-900 mt-1 block">0 / 8</span>
                     </div>
                 </div>
@@ -192,6 +207,7 @@
                                     <th class="p-4">Nom Prénom</th>
                                     <th class="p-4">Classe</th>
                                     <th class="p-4 text-center">Note / 8</th>
+                                    <th class="p-4">Appréciation Diagnostique</th>
                                     <th class="p-4">Alertes Triche</th>
                                     <th class="p-4 text-right">Heure</th>
                                 </tr>
