@@ -9,7 +9,7 @@
     <div class="max-w-xl mx-auto bg-slate-800 p-8 rounded-2xl border border-slate-700 shadow-2xl text-center">
         <div class="text-5xl mb-4 animate-pulse">📡</div>
         <h1 class="text-2xl font-black">Relais de Réception Actif</h1>
-        <p class="text-sm text-slate-400 mt-2">Laissez cette page ouverte sur le poste prof durant l'épreuve. Elle intercepte et télécharge automatiquement une copie de secours de chaque élève sur votre disque dur.</p>
+        <p class="text-sm text-slate-400 mt-2">Intercepte et télécharge automatiquement une copie de secours (.txt) de chaque élève.</p>
         
         <div class="mt-6 bg-slate-950 p-4 rounded-xl border border-slate-800 font-mono text-left text-xs text-emerald-400 h-48 overflow-y-auto" id="relay-logs">
             [Système] En attente de signaux élèves...
@@ -24,27 +24,24 @@
             if (event.data && event.data.type === 'SUBMISSION') {
                 const payload = event.data.payload;
                 
-                // Ajouter un log à l'écran
                 const logLine = document.createElement('p');
-                logLine.innerText = `[${payload.time}] Reçu : ${payload.prenom} ${payload.nom.toUpperCase()} (${payload.classe}) -> Note: ${payload.score}/8`;
+                logLine.innerText = `[${payload.time}] Reçu : ${payload.prenom} ${payload.nom.toUpperCase()} (${payload.classe}) -> ${payload.quizTitle} : ${payload.score}/8`;
                 logsBox.appendChild(logLine);
                 logsBox.scrollTop = logsBox.scrollHeight;
 
-                // Générer un fichier texte de secours automatique (.txt)
                 let textContent = `ARL DELATTRE - MR KESTELYN\nCOPIE DE SECURITE\n\n`;
+                textContent += `Bilan : ${payload.quizTitle}\n`;
                 textContent += `Élève : ${payload.prenom} ${payload.nom.toUpperCase()}\n`;
                 textContent += `Classe : ${payload.classe}\n`;
-                textContent += `Heure de rendu : ${payload.time}\n`;
-                textContent += `Note obtenue : ${payload.score} / 8\n\n`;
-                textContent += `DÉTAIL DES RÉPONSES :\n`;
+                textContent += `Note : ${payload.score} / 8\n\n`;
                 payload.details.forEach(d => {
-                    textContent += `- ${d.label} : Saisi [${d.student}] | Attendu [${d.correct}] -> ${d.ok ? 'CORRECT' : 'FAUX'}\n`;
+                    textContent += `- ${d.label} : [${d.student}] (Attendu: ${d.correct}) -> ${d.ok ? 'CORRECT' : 'FAUX'}\n`;
                 });
 
                 const blob = new Blob([textContent], { type: "text/plain;charset=utf-8" });
                 const link = document.createElement("a");
                 link.href = URL.createObjectURL(blob);
-                link.download = `Secours_${payload.classe}_${payload.nom.toUpperCase()}_${payload.prenom}.txt`;
+                link.download = `Secours_${payload.classe}_${payload.nom.toUpperCase()}_${payload.quizTitle.replace(/\s+/g, '')}.txt`;
                 link.click();
             }
         };

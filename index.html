@@ -3,16 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bilan : Le Présent Simple - Mr Kestelyn</title>
+    <title>Plateforme d'Évaluation — ARL Delattre</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        .avoid-break { page-break-inside: avoid; break-inside: avoid; }
+    </style>
 </head>
 <body class="bg-slate-100 font-sans min-h-screen text-slate-800">
 
     <header class="bg-white shadow-sm border-b border-slate-200 py-4 px-6 sticky top-0 z-50 flex items-center justify-between">
         <div class="flex-1">
-            <span class="bg-blue-600 text-white px-3 py-1.5 rounded-lg font-bold text-sm shadow-sm whitespace-nowrap">
-                📝 Le Présent Simple
+            <span id="header-topic-badge" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg font-bold text-sm shadow-sm">
+                📝 Sélectionner un bilan
             </span>
         </div>
 
@@ -22,12 +25,8 @@
         </div>
 
         <div class="flex-1 flex justify-end gap-2">
-            <button onclick="switchView('student-login-view')" class="px-4 py-2 text-xs font-bold rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition cursor-pointer">
-                🎓 Élève
-            </button>
-            <button onclick="switchView('teacher-dashboard-view')" class="px-4 py-2 text-xs font-bold rounded-lg bg-slate-800 text-white hover:bg-slate-900 transition cursor-pointer">
-                🔒 Professeur
-            </button>
+            <button onclick="switchView('student-login-view')" class="px-4 py-2 text-xs font-bold rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition cursor-pointer">🎓 Élève</button>
+            <button onclick="switchView('teacher-dashboard-view')" class="px-4 py-2 text-xs font-bold rounded-lg bg-slate-800 text-white hover:bg-slate-900 transition cursor-pointer">🔒 Professeur</button>
         </div>
     </header>
 
@@ -36,13 +35,17 @@
         <section id="student-login-view" class="view-section max-w-md mx-auto my-12 bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
             <div class="text-center mb-6">
                 <h2 class="text-2xl font-black text-slate-900 italic">Ouverture de session</h2>
-                <p class="text-sm text-slate-500 mt-1">Évaluation : 20 minutes • 8 exercices QCM</p>
+                <p class="text-sm text-slate-500 mt-1">Veuillez compléter vos informations de classe</p>
             </div>
 
             <div class="space-y-4">
                 <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Évaluation à passer (Multi-Bilans)</label>
+                    <select id="student-quiz-select" class="w-full px-4 py-3 border border-slate-200 rounded-xl font-medium bg-slate-50 outline-none focus:ring-2 focus:ring-blue-500"></select>
+                </div>
+                <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Code session</label>
-                    <input type="password" id="student-pwd" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-medium" placeholder="Fourni par Mr Kestelyn">
+                    <input type="password" id="student-pwd" class="w-full px-4 py-3 border border-slate-200 rounded-xl font-medium outline-none" placeholder="Fourni par Mr Kestelyn">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -59,9 +62,7 @@
                     <input type="text" id="student-class" class="w-full px-4 py-3 border border-slate-200 rounded-xl font-medium" placeholder="Ex: 3B, 4A...">
                 </div>
 
-                <button onclick="startAssessment()" class="w-full mt-2 bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 transition cursor-pointer shadow-lg shadow-blue-100">
-                    Démarrer le bilan
-                </button>
+                <button onclick="startAssessment()" class="w-full mt-2 bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 transition cursor-pointer shadow-lg shadow-blue-100">Démarrer le bilan</button>
                 <p id="login-error" class="text-red-500 text-xs text-center font-semibold hidden bg-red-50 py-2 rounded-lg mt-2">Données incorrectes ou manquantes.</p>
             </div>
         </section>
@@ -72,80 +73,22 @@
                     <span id="display-student-identity" class="font-bold text-lg block">Identité Élève</span>
                     <span id="display-student-class" class="text-xs font-semibold text-blue-400 uppercase">Classe</span>
                 </div>
-                <div id="timer-box" class="text-2xl font-mono font-black bg-red-500/20 text-red-400 border border-red-500/30 px-4 py-2 rounded-xl">
+                <div id="timer-box" class="text-2xl font-mono font-black bg-emerald-500 text-white px-4 py-2 rounded-xl transition-all duration-500">
                     20:00
                 </div>
             </div>
 
-            <form id="quiz-form" class="p-6 md:p-8 space-y-6 max-h-[60vh] overflow-y-auto bg-slate-50/50">
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                    <p class="font-bold text-slate-800 mb-3">1. She ______ (to play) tennis every Tuesday.</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-medium">
-                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q1" value="play" class="w-4 h-4"> play</label>
-                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q1" value="plays" class="w-4 h-4"> plays</label>
-                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q1" value="playing" class="w-4 h-4"> playing</label>
-                    </div>
+            <div class="bg-slate-100 border-b border-slate-200 px-8 py-3 flex items-center justify-between gap-4">
+                <div class="w-full bg-slate-200 rounded-full h-2.5">
+                    <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
                 </div>
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                    <p class="font-bold text-slate-800 mb-3">2. They ______ (not / to like) broccoli.</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-medium">
-                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q2" value="doesn't like" class="w-4 h-4"> doesn't like</label>
-                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q2" value="don't like" class="w-4 h-4"> don't like</label>
-                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q2" value="not like" class="w-4 h-4"> not like</label>
-                    </div>
-                </div>
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                    <p class="font-bold text-slate-800 mb-3">3. ______ you ______ (to live) in London?</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-medium">
-                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q3" value="Do / live" class="w-4 h-4"> Do / live</label>
-                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q3" value="Does / live" class="w-4 h-4"> Does / live</label>
-                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q3" value="Do / lives" class="w-4 h-4"> Do / lives</label>
-                    </div>
-                </div>
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                    <p class="font-bold text-slate-800 mb-3">4. He ______ (to watch) TV in the evening.</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-medium">
-                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q4" value="watchs" class="w-4 h-4"> watchs</label>
-                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q4" value="watches" class="w-4 h-4"> watches</label>
-                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q4" value="watch" class="w-4 h-4"> watch</label>
-                    </div>
-                </div>
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                    <p class="font-bold text-slate-800 mb-3">5. Choose the correct form: "The sun ______ in the east."</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-medium">
-                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q5" value="rise" class="w-4 h-4"> rise</label>
-                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q5" value="rises" class="w-4 h-4"> rises</label>
-                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q5" value="rising" class="w-4 h-4"> rising</label>
-                    </div>
-                </div>
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                    <p class="font-bold text-slate-800 mb-3">6. What is the negative form of: "He flies to Paris."?</p>
-                    <div class="space-y-2 font-medium">
-                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q6" value="He doesn't fly to Paris." class="w-4 h-4"> He doesn't fly to Paris.</label>
-                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q6" value="He don't fly to Paris." class="w-4 h-4"> He don't fly to Paris.</label>
-                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q6" value="He doesn't flies to Paris." class="w-4 h-4"> He doesn't flies to Paris.</label>
-                    </div>
-                </div>
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                    <p class="font-bold text-slate-800 mb-3">7. My brother ______ (to study) German at school.</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-medium">
-                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q7" value="studys" class="w-4 h-4"> studys</label>
-                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q7" value="studies" class="w-4 h-4"> studies</label>
-                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q7" value="study" class="w-4 h-4"> study</label>
-                    </div>
-                </div>
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                    <p class="font-bold text-slate-800 mb-3">8. ______ she ______ (to have) a dog?</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-medium">
-                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q8" value="Do / have" class="w-4 h-4"> Do / have</label>
-                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q8" value="Does / has" class="w-4 h-4"> Does / has</label>
-                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q8" value="Does / have" class="w-4 h-4"> Does / have</label>
-                    </div>
-                </div>
-            </form>
+                <span id="progress-text" class="text-xs font-bold text-slate-500 whitespace-nowrap">0 / 8 complété(s)</span>
+            </div>
+
+            <form id="quiz-form" class="p-6 md:p-8 space-y-6 max-h-[55vh] overflow-y-auto bg-slate-50/50"></form>
 
             <div class="p-6 bg-white border-t border-slate-200">
-                <button onclick="submitResult(true)" class="w-full bg-emerald-600 text-white font-bold py-4 rounded-xl hover:bg-emerald-700 transition cursor-pointer text-center text-lg">
+                <button onclick="submitResult(true)" class="w-full bg-emerald-600 text-white font-bold py-4 rounded-xl hover:bg-emerald-700 transition cursor-pointer text-center text-lg shadow-md">
                     Valider et envoyer mes réponses
                 </button>
             </div>
@@ -161,7 +104,7 @@
                     <div class="border-b border-slate-200 pb-4 mb-4 flex justify-between items-start">
                         <div>
                             <h3 id="pdf-student-info" class="text-xl font-bold text-slate-900 uppercase">...</h3>
-                            <p class="text-xs font-bold text-blue-600 uppercase mt-0.5">ARL Delattre — Bilan : Le Présent Simple</p>
+                            <p id="pdf-bilan-title" class="text-xs font-bold text-blue-600 uppercase mt-0.5">ARL Delattre — Bilan</p>
                         </div>
                         <div id="pdf-score-box" class="text-3xl font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-xl border border-blue-100">0 / 8</div>
                     </div>
@@ -169,12 +112,8 @@
                 </div>
 
                 <div class="flex gap-3 justify-center">
-                    <button onclick="downloadIndividualPDF()" class="bg-blue-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-md cursor-pointer">
-                        📥 Télécharger ma copie (PDF)
-                    </button>
-                    <button onclick="resetToLogin()" class="bg-slate-100 text-slate-700 font-bold px-6 py-3 rounded-xl hover:bg-slate-200 transition cursor-pointer">
-                        Élève suivant
-                    </button>
+                    <button onclick="downloadIndividualPDF()" class="bg-blue-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-md cursor-pointer">📥 Télécharger ma copie (PDF)</button>
+                    <button onclick="resetToLogin()" class="bg-slate-100 text-slate-700 font-bold px-6 py-3 rounded-xl hover:bg-slate-200 transition cursor-pointer">Élève suivant</button>
                 </div>
             </div>
         </section>
@@ -191,7 +130,9 @@
                 <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-200 flex flex-wrap justify-between items-center gap-4">
                     <div>
                         <h2 class="text-2xl font-black text-slate-900">Résultats de la classe</h2>
-                        <p class="text-sm text-slate-500 font-medium">Suivi centralisé en temps réel</p>
+                        <div class="flex gap-2 mt-1">
+                            <select id="teacher-quiz-filter" onchange="renderTable()" class="text-xs font-bold border rounded px-2 py-1 bg-slate-50 text-slate-600"></select>
+                        </div>
                     </div>
                     <div class="flex gap-2">
                         <button onclick="exportToPDF()" class="bg-blue-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-700 transition cursor-pointer">📋 Export Classe (PDF)</button>
@@ -200,13 +141,18 @@
                     </div>
                 </div>
 
+                <div id="triche-alert-box" class="hidden bg-amber-50 border border-amber-200 p-4 rounded-xl text-amber-900 text-sm font-semibold space-y-1">
+                    <p class="text-xs font-bold uppercase text-amber-600 tracking-wider">⚠️ Journal des alertes focus (Changement d'onglet) :</p>
+                    <div id="triche-logs" class="max-h-24 overflow-y-auto font-mono text-xs text-amber-800"></div>
+                </div>
+
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
                         <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Effectif</span>
                         <span id="stat-count" class="text-3xl font-black text-slate-900 mt-1 block">0</span>
                     </div>
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Moyenne</span>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Moyenne du groupe</span>
                         <span id="stat-average" class="text-3xl font-black text-slate-900 mt-1 block">0 / 8</span>
                     </div>
                 </div>
@@ -215,7 +161,7 @@
                     <div id="pdf-teacher-header" class="hidden mb-6 border-b pb-4">
                         <h1 class="text-2xl font-black text-slate-900 text-center">Rapport Global d'Évaluation</h1>
                         <p class="text-center font-bold text-blue-600 uppercase text-sm mt-1">ARL Delattre — Mr Kestelyn</p>
-                        <p class="text-center text-xs text-slate-400 mt-1">Thème : Le Présent Simple</p>
+                        <p id="pdf-teacher-active-quiz" class="text-center text-xs text-slate-400 mt-1">Bilan : ...</p>
                     </div>
 
                     <div class="overflow-x-auto">
@@ -225,13 +171,17 @@
                                     <th class="p-4">Nom Prénom</th>
                                     <th class="p-4">Classe</th>
                                     <th class="p-4 text-center">Note / 8</th>
-                                    <th class="p-4 text-right">Heure de rendu</th>
+                                    <th class="p-4">Détails alertes</th>
+                                    <th class="p-4 text-right">Heure</th>
                                 </tr>
                             </thead>
-                            <tbody id="teacher-table-body" class="divide-y divide-slate-100 text-sm font-medium">
-                                <tr><td colspan="4" class="p-8 text-center text-slate-400 italic">En attente des copies...</td></tr>
-                            </tbody>
+                            <tbody id="teacher-table-body" class="divide-y divide-slate-100 text-sm font-medium"></tbody>
                         </table>
+                    </div>
+
+                    <div id="advanced-stats-block" class="mt-8 border-t pt-6 avoid-break">
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 mb-3">🎯 Calculs avancés : Taux de réussite par exercice</h3>
+                        <div id="exercise-stats-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
                     </div>
                 </div>
             </div>
