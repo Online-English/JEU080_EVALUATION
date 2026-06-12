@@ -8,6 +8,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         .avoid-break { page-break-inside: avoid; break-inside: avoid; }
+        /* Style spécial Accessibilité / Dyslexie */
+        .dys-mode p, .dys-mode label, .dys-mode span { 
+            font-family: 'Comic Sans MS', cursive, sans-serif !important; 
+            letter-spacing: 0.12em !important; 
+            word-spacing: 0.2em !important;
+            line-height: 2 !important;
+            font-size: 1.2rem !important;
+        }
     </style>
 </head>
 <body class="bg-slate-100 font-sans min-h-screen text-slate-800">
@@ -35,12 +43,12 @@
         <section id="student-login-view" class="view-section max-w-md mx-auto my-12 bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
             <div class="text-center mb-6">
                 <h2 class="text-2xl font-black text-slate-900 italic">Ouverture de session</h2>
-                <p class="text-sm text-slate-500 mt-1">Veuillez compléter vos informations de classe</p>
+                <p class="text-sm text-slate-500 mt-1">Sélectionnez votre bilan et complétez vos données.</p>
             </div>
 
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Évaluation à passer (Multi-Bilans)</label>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Évaluation à passer</label>
                     <select id="student-quiz-select" class="w-full px-4 py-3 border border-slate-200 rounded-xl font-medium bg-slate-50 outline-none focus:ring-2 focus:ring-blue-500"></select>
                 </div>
                 <div>
@@ -71,7 +79,10 @@
             <div class="bg-slate-900 text-white p-6 flex justify-between items-center">
                 <div>
                     <span id="display-student-identity" class="font-bold text-lg block">Identité Élève</span>
-                    <span id="display-student-class" class="text-xs font-semibold text-blue-400 uppercase">Classe</span>
+                    <div class="flex items-center gap-3 mt-1">
+                        <span id="display-student-class" class="text-xs font-semibold text-blue-400 uppercase">Classe</span>
+                        <button onclick="toggleAccessibility()" class="bg-slate-800 text-amber-400 border border-amber-400/30 text-[11px] font-bold px-2 py-0.5 rounded hover:bg-amber-400 hover:text-slate-950 transition cursor-pointer">♿ Confort / DYS</button>
+                    </div>
                 </div>
                 <div id="timer-box" class="text-2xl font-mono font-black bg-emerald-500 text-white px-4 py-2 rounded-xl transition-all duration-500">
                     20:00
@@ -85,7 +96,10 @@
                 <span id="progress-text" class="text-xs font-bold text-slate-500 whitespace-nowrap">0 / 8 complété(s)</span>
             </div>
 
-            <form id="quiz-form" class="p-6 md:p-8 space-y-6 max-h-[55vh] overflow-y-auto bg-slate-50/50"></form>
+            <div id="quiz-wrapper" class="p-6 md:p-8 bg-slate-50/50 max-h-[55vh] overflow-y-auto">
+                <div id="quiz-media-support" class="mb-6"></div>
+                <form id="quiz-form" class="space-y-6"></form>
+            </div>
 
             <div class="p-6 bg-white border-t border-slate-200">
                 <button onclick="submitResult(true)" class="w-full bg-emerald-600 text-white font-bold py-4 rounded-xl hover:bg-emerald-700 transition cursor-pointer text-center text-lg shadow-md">
@@ -97,8 +111,8 @@
         <section id="student-result-view" class="view-section hidden max-w-2xl mx-auto text-center py-8">
             <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
                 <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-4">✓</div>
-                <h2 class="text-3xl font-black text-slate-900 mb-2">Travail Terminé !</h2>
-                <p class="text-slate-500 mb-6 font-medium">Tes réponses ont été transmises sur l'écran de Mr Kestelyn.</p>
+                <h2 class="text-3xl font-black text-slate-900 mb-2">Travail Transmis !</h2>
+                <p class="text-slate-500 mb-6 font-medium">Tes notes sont centralisées. Télécharge tes deux fichiers obligatoires ci-dessous.</p>
 
                 <div id="individual-pdf-copy" class="bg-slate-50 p-6 rounded-xl border border-slate-200 text-left mb-6 font-sans">
                     <div class="border-b border-slate-200 pb-4 mb-4 flex justify-between items-start">
@@ -111,9 +125,10 @@
                     <div id="pdf-correction-details" class="space-y-2.5"></div>
                 </div>
 
-                <div class="flex gap-3 justify-center">
-                    <button onclick="downloadIndividualPDF()" class="bg-blue-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-md cursor-pointer">📥 Télécharger ma copie (PDF)</button>
-                    <button onclick="resetToLogin()" class="bg-slate-100 text-slate-700 font-bold px-6 py-3 rounded-xl hover:bg-slate-200 transition cursor-pointer">Élève suivant</button>
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    <button onclick="downloadIndividualPDF()" class="bg-blue-600 text-white font-bold px-5 py-3 rounded-xl hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-md cursor-pointer">📄 Éléve : Mon PDF</button>
+                    <button onclick="downloadStudentJSON()" class="bg-purple-600 text-white font-bold px-5 py-3 rounded-xl hover:bg-purple-700 transition flex items-center justify-center gap-2 shadow-md cursor-pointer">📥 Fichier Prof (.json)</button>
+                    <button onclick="resetToLogin()" class="bg-slate-100 text-slate-700 font-bold px-5 py-3 rounded-xl hover:bg-slate-200 transition cursor-pointer">Élève suivant</button>
                 </div>
             </div>
         </section>
@@ -121,38 +136,44 @@
         <section id="teacher-dashboard-view" class="view-section hidden max-w-5xl mx-auto">
             <div id="teacher-auth-block" class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
                 <h2 class="text-2xl font-black mb-4 text-center">Accès Mr Kestelyn</h2>
-                <input type="password" id="teacher-pass" class="w-full px-4 py-3 border border-slate-200 rounded-xl mb-4 font-medium outline-none focus:ring-2 focus:ring-slate-800" placeholder="Code maître...">
+                <input type="password" id="teacher-pass" class="w-full px-4 py-3 border border-slate-200 rounded-xl mb-4 font-medium outline-none" placeholder="Code maître...">
                 <button onclick="unlockDashboard()" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-slate-800 transition cursor-pointer">Déverrouiller</button>
                 <p id="teacher-auth-error" class="text-red-500 text-xs text-center font-semibold hidden bg-red-50 py-2 rounded-lg mt-2">Code d'accès incorrect.</p>
             </div>
 
             <div id="teacher-dashboard-content" class="hidden space-y-6">
-                <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-200 flex flex-wrap justify-between items-center gap-4">
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
                         <h2 class="text-2xl font-black text-slate-900">Résultats de la classe</h2>
-                        <div class="flex gap-2 mt-1">
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="text-xs text-slate-400 font-bold">Filtre :</span>
                             <select id="teacher-quiz-filter" onchange="renderTable()" class="text-xs font-bold border rounded px-2 py-1 bg-slate-50 text-slate-600"></select>
                         </div>
                     </div>
-                    <div class="flex gap-2">
-                        <button onclick="exportToPDF()" class="bg-blue-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-700 transition cursor-pointer">📋 Export Classe (PDF)</button>
-                        <button onclick="exportToCSV()" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-emerald-700 transition cursor-pointer">📊 Excel (CSV)</button>
-                        <button onclick="clearSession()" class="bg-red-50 text-red-600 px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-red-100 transition border border-red-100 cursor-pointer">Réinitialiser</button>
+                    
+                    <div class="flex flex-wrap gap-2 items-center w-full md:w-auto">
+                        <label class="bg-purple-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-purple-700 transition cursor-pointer shadow-sm text-center flex-1 md:flex-initial">
+                            🔌 Importer les .json élèves
+                            <input type="file" id="json-bulk-importer" multiple accept=".json" class="hidden" onchange="importStudentJSONs(event)">
+                        </label>
+                        <button onclick="exportToPDF()" class="bg-blue-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-700 transition cursor-pointer flex-1 md:flex-initial">📋 Export PDF</button>
+                        <button onclick="exportToCSV()" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-emerald-700 transition cursor-pointer flex-1 md:flex-initial">📊 Excel (CSV)</button>
+                        <button onclick="clearSession()" class="bg-red-50 text-red-600 px-4 py-2.5 rounded-xl text-sm font-bold border border-red-100 cursor-pointer">Vider</button>
                     </div>
                 </div>
 
-                <div id="triche-alert-box" class="hidden bg-amber-50 border border-amber-200 p-4 rounded-xl text-amber-900 text-sm font-semibold space-y-1">
+                <div id="triche-alert-box" class="hidden bg-amber-50 border border-amber-200 p-4 rounded-xl text-amber-900 text-sm font-semibold">
                     <p class="text-xs font-bold uppercase text-amber-600 tracking-wider">⚠️ Journal des alertes focus (Changement d'onglet) :</p>
-                    <div id="triche-logs" class="max-h-24 overflow-y-auto font-mono text-xs text-amber-800"></div>
+                    <div id="triche-logs" class="max-h-24 overflow-y-auto font-mono text-xs text-amber-800 mt-1"></div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Effectif</span>
+                        <span class="text-xs font-bold text-slate-400 uppercase block tracking-wider">Effectif</span>
                         <span id="stat-count" class="text-3xl font-black text-slate-900 mt-1 block">0</span>
                     </div>
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Moyenne du groupe</span>
+                        <span class="text-xs font-bold text-slate-400 uppercase block tracking-wider">Moyenne Générale</span>
                         <span id="stat-average" class="text-3xl font-black text-slate-900 mt-1 block">0 / 8</span>
                     </div>
                 </div>
@@ -171,7 +192,7 @@
                                     <th class="p-4">Nom Prénom</th>
                                     <th class="p-4">Classe</th>
                                     <th class="p-4 text-center">Note / 8</th>
-                                    <th class="p-4">Détails alertes</th>
+                                    <th class="p-4">Alertes Triche</th>
                                     <th class="p-4 text-right">Heure</th>
                                 </tr>
                             </thead>
@@ -180,7 +201,7 @@
                     </div>
 
                     <div id="advanced-stats-block" class="mt-8 border-t pt-6 avoid-break">
-                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 mb-3">🎯 Calculs avancés : Taux de réussite par exercice</h3>
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 mb-3">🎯 Analyse diagnostique : Taux de réussite par question</h3>
                         <div id="exercise-stats-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
                     </div>
                 </div>
