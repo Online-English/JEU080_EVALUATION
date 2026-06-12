@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bilan : Le Présent Simple - Mr Kestelyn</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body class="bg-slate-100 font-sans min-h-screen text-slate-800">
+
+    <header class="bg-white shadow-sm border-b border-slate-200 py-4 px-6 sticky top-0 z-50 flex items-center justify-between">
+        <div class="flex-1">
+            <span class="bg-blue-600 text-white px-3 py-1.5 rounded-lg font-bold text-sm shadow-sm whitespace-nowrap">
+                📝 Le Présent Simple
+            </span>
+        </div>
+
+        <div class="flex-1 text-center">
+            <h1 class="text-xl font-black text-slate-900 leading-none">ARL Delattre</h1>
+            <p class="text-sm font-bold text-blue-600 uppercase tracking-tighter mt-1">Mr Kestelyn</p>
+        </div>
+
+        <div class="flex-1 flex justify-end gap-2">
+            <button onclick="switchView('student-login-view')" class="px-4 py-2 text-xs font-bold rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition cursor-pointer">
+                🎓 Élève
+            </button>
+            <button onclick="switchView('teacher-dashboard-view')" class="px-4 py-2 text-xs font-bold rounded-lg bg-slate-800 text-white hover:bg-slate-900 transition cursor-pointer">
+                🔒 Professeur
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto p-4 md:p-8">
+
+        <section id="student-login-view" class="view-section max-w-md mx-auto my-12 bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-black text-slate-900 italic">Ouverture de session</h2>
+                <p class="text-sm text-slate-500 mt-1">Évaluation : 20 minutes • 8 exercices QCM</p>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Code session</label>
+                    <input type="password" id="student-pwd" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-medium" placeholder="Fourni par Mr Kestelyn">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nom</label>
+                        <input type="text" id="student-lastname" class="w-full px-4 py-3 border border-slate-200 rounded-xl font-medium" placeholder="Dupont">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Prénom</label>
+                        <input type="text" id="student-firstname" class="w-full px-4 py-3 border border-slate-200 rounded-xl font-medium" placeholder="Lucas">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Classe</label>
+                    <input type="text" id="student-class" class="w-full px-4 py-3 border border-slate-200 rounded-xl font-medium" placeholder="Ex: 3B, 4A...">
+                </div>
+
+                <button onclick="startAssessment()" class="w-full mt-2 bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 transition cursor-pointer shadow-lg shadow-blue-100">
+                    Démarrer le bilan
+                </button>
+                <p id="login-error" class="text-red-500 text-xs text-center font-semibold hidden bg-red-50 py-2 rounded-lg mt-2">Données incorrectes ou manquantes.</p>
+            </div>
+        </section>
+
+        <section id="student-quiz-view" class="view-section hidden max-w-3xl mx-auto bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+            <div class="bg-slate-900 text-white p-6 flex justify-between items-center">
+                <div>
+                    <span id="display-student-identity" class="font-bold text-lg block">Identité Élève</span>
+                    <span id="display-student-class" class="text-xs font-semibold text-blue-400 uppercase">Classe</span>
+                </div>
+                <div id="timer-box" class="text-2xl font-mono font-black bg-red-500/20 text-red-400 border border-red-500/30 px-4 py-2 rounded-xl">
+                    20:00
+                </div>
+            </div>
+
+            <form id="quiz-form" class="p-6 md:p-8 space-y-6 max-h-[60vh] overflow-y-auto bg-slate-50/50">
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="font-bold text-slate-800 mb-3">1. She ______ (to play) tennis every Tuesday.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-medium">
+                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q1" value="play" class="w-4 h-4"> play</label>
+                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q1" value="plays" class="w-4 h-4"> plays</label>
+                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q1" value="playing" class="w-4 h-4"> playing</label>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="font-bold text-slate-800 mb-3">2. They ______ (not / to like) broccoli.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-medium">
+                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q2" value="doesn't like" class="w-4 h-4"> doesn't like</label>
+                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q2" value="don't like" class="w-4 h-4"> don't like</label>
+                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q2" value="not like" class="w-4 h-4"> not like</label>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="font-bold text-slate-800 mb-3">3. ______ you ______ (to live) in London?</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-medium">
+                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q3" value="Do / live" class="w-4 h-4"> Do / live</label>
+                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q3" value="Does / live" class="w-4 h-4"> Does / live</label>
+                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q3" value="Do / lives" class="w-4 h-4"> Do / lives</label>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="font-bold text-slate-800 mb-3">4. He ______ (to watch) TV in the evening.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-medium">
+                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q4" value="watchs" class="w-4 h-4"> watchs</label>
+                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q4" value="watches" class="w-4 h-4"> watches</label>
+                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q4" value="watch" class="w-4 h-4"> watch</label>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="font-bold text-slate-800 mb-3">5. Choose the correct form: "The sun ______ in the east."</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-medium">
+                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q5" value="rise" class="w-4 h-4"> rise</label>
+                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q5" value="rises" class="w-4 h-4"> rises</label>
+                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q5" value="rising" class="w-4 h-4"> rising</label>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="font-bold text-slate-800 mb-3">6. What is the negative form of: "He flies to Paris."?</p>
+                    <div class="space-y-2 font-medium">
+                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q6" value="He doesn't fly to Paris." class="w-4 h-4"> He doesn't fly to Paris.</label>
+                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q6" value="He don't fly to Paris." class="w-4 h-4"> He don't fly to Paris.</label>
+                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q6" value="He doesn't flies to Paris." class="w-4 h-4"> He doesn't flies to Paris.</label>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="font-bold text-slate-800 mb-3">7. My brother ______ (to study) German at school.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-medium">
+                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q7" value="studys" class="w-4 h-4"> studys</label>
+                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q7" value="studies" class="w-4 h-4"> studies</label>
+                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q7" value="study" class="w-4 h-4"> study</label>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="font-bold text-slate-800 mb-3">8. ______ she ______ (to have) a dog?</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-medium">
+                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q8" value="Do / have" class="w-4 h-4"> Do / have</label>
+                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q8" value="Does / has" class="w-4 h-4"> Does / has</label>
+                        <label class="flex items-center gap-3 p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="q8" value="Does / have" class="w-4 h-4"> Does / have</label>
+                    </div>
+                </div>
+            </form>
+
+            <div class="p-6 bg-white border-t border-slate-200">
+                <button onclick="submitResult(true)" class="w-full bg-emerald-600 text-white font-bold py-4 rounded-xl hover:bg-emerald-700 transition cursor-pointer text-center text-lg">
+                    Valider et envoyer mes réponses
+                </button>
+            </div>
+        </section>
+
+        <section id="student-result-view" class="view-section hidden max-w-2xl mx-auto text-center py-8">
+            <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
+                <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-4">✓</div>
+                <h2 class="text-3xl font-black text-slate-900 mb-2">Travail Terminé !</h2>
+                <p class="text-slate-500 mb-6 font-medium">Tes réponses ont été transmises sur l'écran de Mr Kestelyn.</p>
+
+                <div id="individual-pdf-copy" class="bg-slate-50 p-6 rounded-xl border border-slate-200 text-left mb-6 font-sans">
+                    <div class="border-b border-slate-200 pb-4 mb-4 flex justify-between items-start">
+                        <div>
+                            <h3 id="pdf-student-info" class="text-xl font-bold text-slate-900 uppercase">...</h3>
+                            <p class="text-xs font-bold text-blue-600 uppercase mt-0.5">ARL Delattre — Bilan : Le Présent Simple</p>
+                        </div>
+                        <div id="pdf-score-box" class="text-3xl font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-xl border border-blue-100">0 / 8</div>
+                    </div>
+                    <div id="pdf-correction-details" class="space-y-2.5"></div>
+                </div>
+
+                <div class="flex gap-3 justify-center">
+                    <button onclick="downloadIndividualPDF()" class="bg-blue-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-md cursor-pointer">
+                        📥 Télécharger ma copie (PDF)
+                    </button>
+                    <button onclick="resetToLogin()" class="bg-slate-100 text-slate-700 font-bold px-6 py-3 rounded-xl hover:bg-slate-200 transition cursor-pointer">
+                        Élève suivant
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="teacher-dashboard-view" class="view-section hidden max-w-5xl mx-auto">
+            <div id="teacher-auth-block" class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
+                <h2 class="text-2xl font-black mb-4 text-center">Accès Mr Kestelyn</h2>
+                <input type="password" id="teacher-pass" class="w-full px-4 py-3 border border-slate-200 rounded-xl mb-4 font-medium outline-none focus:ring-2 focus:ring-slate-800" placeholder="Code maître...">
+                <button onclick="unlockDashboard()" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-slate-800 transition cursor-pointer">Déverrouiller</button>
+                <p id="teacher-auth-error" class="text-red-500 text-xs text-center font-semibold hidden bg-red-50 py-2 rounded-lg mt-2">Code d'accès incorrect.</p>
+            </div>
+
+            <div id="teacher-dashboard-content" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-200 flex flex-wrap justify-between items-center gap-4">
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-900">Résultats de la classe</h2>
+                        <p class="text-sm text-slate-500 font-medium">Suivi centralisé en temps réel</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="exportToPDF()" class="bg-blue-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-700 transition cursor-pointer">📋 Export Classe (PDF)</button>
+                        <button onclick="exportToCSV()" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-emerald-700 transition cursor-pointer">📊 Excel (CSV)</button>
+                        <button onclick="clearSession()" class="bg-red-50 text-red-600 px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-red-100 transition border border-red-100 cursor-pointer">Réinitialiser</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Effectif</span>
+                        <span id="stat-count" class="text-3xl font-black text-slate-900 mt-1 block">0</span>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Moyenne</span>
+                        <span id="stat-average" class="text-3xl font-black text-slate-900 mt-1 block">0 / 8</span>
+                    </div>
+                </div>
+
+                <div id="global-class-report" class="bg-white rounded-2xl shadow-md border border-slate-200 p-6">
+                    <div id="pdf-teacher-header" class="hidden mb-6 border-b pb-4">
+                        <h1 class="text-2xl font-black text-slate-900 text-center">Rapport Global d'Évaluation</h1>
+                        <p class="text-center font-bold text-blue-600 uppercase text-sm mt-1">ARL Delattre — Mr Kestelyn</p>
+                        <p class="text-center text-xs text-slate-400 mt-1">Thème : Le Présent Simple</p>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="text-slate-400 text-xs font-bold uppercase border-b border-slate-100">
+                                    <th class="p-4">Nom Prénom</th>
+                                    <th class="p-4">Classe</th>
+                                    <th class="p-4 text-center">Note / 8</th>
+                                    <th class="p-4 text-right">Heure de rendu</th>
+                                </tr>
+                            </thead>
+                            <tbody id="teacher-table-body" class="divide-y divide-slate-100 text-sm font-medium">
+                                <tr><td colspan="4" class="p-8 text-center text-slate-400 italic">En attente des copies...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
